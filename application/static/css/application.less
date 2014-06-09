@@ -1,0 +1,97 @@
+// © 2014 Christopher Ramírez
+// Para Python Day #2
+// Licencia: BSD
+
+@import "bootstrap/bootstrap.less";
+
+body {
+    min-height: 100%;
+    background: url("/static/media/background.jpg");
+}
+
+.interface-container {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    background: hsla(0, 100%, 100%, 0.9);
+    .box-shadow(~"0px 0px 20px 5px hsla(0,0%,0%, .4)");
+}
+
+.section-title {
+    font-weight: bold;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #333;
+}
+
+.message {
+    overflow: auto;
+
+    .avatar {
+        margin: 0 auto;
+        float: left;
+    }
+
+    .message-text {
+        overflow: auto;
+        padding-left: 8px;
+        font-size: 2.5rem;
+    }
+
+    & + & {
+        margin-top: 16px;
+    }
+}
+
+.anonymous_animal {
+    background: url("/static/media/anonymous_animals.jpg") no-repeat;
+
+    &.animal-1 {
+        background-position: 3.448% 3.38%;
+        width: 104px;
+        height: 104px;
+    }
+
+    &.animal-2 {
+        background-position: 26.437% 3.38%;
+        width: 104px;
+        height: 104px;
+    }
+
+    &.animal-3 {
+        background-position: 73.563% 3.38%;
+        width: 104px;
+        height: 104px;
+    }
+
+    &.animal-4 {
+        background-position: 96.552% 3.38%;
+        width: 104px;
+        height: 104px;
+    }
+
+    &.animal-5 {
+        background-position: 3.448% 26.891%;
+        width: 104px;
+        height: 100px;
+    }
+
+    &.animal-6 {
+        background-position: 26.437% 26.966%;
+        width: 104px;
+        height: 102px;
+    }
+
+    &.animal-7 {
+        background-position: 3.448% 49.577%;
+        width: 104px;
+        height: 104px;
+    }
+
+    &.animal-8 {
+        background-position: 49.858% 49.577%;
+        width: 98px;
+        height: 104px;
+    }
+}
