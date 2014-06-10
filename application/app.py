@@ -2,13 +2,15 @@
 
 import json
 import gevent
+from gevent import monkey
 from datetime import datetime
 from gevent.queue import Queue
 from gevent.wsgi import WSGIServer
-from flask.ext.pymongo import PyMongo
 from bson.objectid import ObjectId
+from flask.ext.pymongo import PyMongo
 from flask import Flask, Response, render_template, request
 
+monkey.patch_all()
 app = Flask(__name__)
 mongo = PyMongo(app)
 subscriptions = []
