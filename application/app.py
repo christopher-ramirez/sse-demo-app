@@ -62,23 +62,32 @@ def post_message():
 
 @app.route('/events')
 def yield_events():
-    def events():
+    def events(headers):
+        with app.app_context():
+            if headers.get('Last-Event-ID', False):
+                # Enviar todos los mensajes que no ha recibido el usuario
+                def previous_messages():
+                    last_msg_received = headers.get('Last-Event-ID')
+                    messages = mongo.db.messages.find({'_id': {'$gt': ObjectId(last_msg_received)}})
+                    for m in messages:
+                        yield msg_to_sse_msg(m)
+
+                for m in previous_messages():
+                    yield m
+
         queue = Queue()
         subscriptions.append(queue)
         try:
-            # yield 'data: hello\n\n'
-
             while True:
                 message = queue.get()
                 yield msg_to_sse_msg(message)
-        except GeneratorExit:
+        except:
             subscriptions.remove(queue)
 
-    return Response(events(), mimetype='text/event-stream')
+    return Response(events(request.headers), mimetype='text/event-stream')
 
 
 # Iniciar la configuracion
-# app.config['MONGO_PORT']    = env['MONGODB_PORT']
 app.config['MONGO_HOST']    = 'localhost'
 app.config['MONGO_DBNAME']  = 'sse'
 
