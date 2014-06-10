@@ -1,14 +1,84 @@
+# /usr/bin/python
+
+import json
 import gevent
-from gevent.wsgi import WSGIServer
+from datetime import datetime
 from gevent.queue import Queue
-from flask import Flask, Response, render_template
+from gevent.wsgi import WSGIServer
+from flask.ext.pymongo import PyMongo
+from bson.objectid import ObjectId
+from flask import Flask, Response, render_template, request
 
 app = Flask(__name__)
+mongo = PyMongo(app)
 subscriptions = []
+
+class JSONEncoderExt(json.JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, 'isoformat'):
+            return obj.isoformat()
+        elif isinstance(obj, ObjectId):
+            return str(obj)
+        else:
+            return json.JSONEncoder.default(self, obj)
+
+def msg_to_sse_msg(message):
+    # Convierte un diccionario que representa el mensaje de un usuario
+    # a un evento compatible con clientes SSE con el mensaje del usuario
+    # condificado en una cadena JSON.
+    sse_message = 'event:message\n'
+    sse_message = sse_message + 'id: %s\n' % message['_id']
+    sse_message = sse_message + 'data: %s\n\n' % json.dumps(message, cls=JSONEncoderExt)
+    return sse_message
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    template_data = {
+        'messages': mongo.db.messages.find().sort([('_id', 0)])
+    }
+    return render_template('index.html', **template_data)
+
+@app.route('/post', methods=['POST'])
+def post_message():
+    # Recibe un nuevo mensaje del usario. Lo guarda en la DB y notifica
+    # del nuevo mensaje al resto de usuarios por medio de SSE.
+    message = json.loads(request.data)
+    message['time'] = datetime.now()
+    new_msg_id = mongo.db.messages.insert(message)
+    message['_id'] = new_msg_id
+
+    # Enviar al resto de usuarios el nuevo mensaje por medio de SSE
+    # Lo hacemos en segundo plano porque la lista de subscriptores
+    # puede ser larga y algunas colas pueden bloquear la peticion.
+    def notify_users():
+        for subscription in subscriptions:
+            subscription.put(message)
+    gevent.spawn(notify_users())
+
+    # Devolvemos el nuevo mensaje al usuario que lo ha creado.
+    return Response(json.dumps(message, cls=JSONEncoderExt), mimetype='application/json')
+
+@app.route('/events')
+def yield_events():
+    def events():
+        queue = Queue()
+        subscriptions.append(queue)
+        try:
+            # yield 'data: hello\n\n'
+
+            while True:
+                message = queue.get()
+                yield msg_to_sse_msg(message)
+        except GeneratorExit:
+            subscriptions.remove(queue)
+
+    return Response(events(), mimetype='text/event-stream')
+
+
+# Iniciar la configuracion
+# app.config['MONGO_PORT']    = env['MONGODB_PORT']
+app.config['MONGO_HOST']    = 'localhost'
+app.config['MONGO_DBNAME']  = 'sse'
 
 if __name__ == '__main__':
     app.debug = True

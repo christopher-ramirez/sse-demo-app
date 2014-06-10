@@ -6,33 +6,53 @@
 
     <body ng-app="sse">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1 interface-container">
+            <div class="row  interface-container">
+                <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1 messages-rail">
                     <h1><a href="/" title="Refrescar">#PyDay2</a></h1>
+                    <h5 class="section-title">Escribe un nuevo mensaje</h5>
+                    <form class="message-composer row" ng-controller="PostMessage">
+                        <div class="col-xs-12 form-group">
+                            <textarea class="form-control message-text" ng-model="message" ng-trim></textarea>
+                        </div>
+                        <div class="col-xs-12 form-group">
+                            <button type="submit" class="btn btn-success" ng-click="save()">Enviar</button>
+                        </div>
+                    </form>
+
                     <h5 class="section-title">Últimos Mensajes</h5>
-                    <div class="messages-container">
-                        <div class="message">
+                    <div class="messages-container" ng-controller="SSEMessages">
+                        {% raw %}
+                        <div class="message" ng-repeat="message in messages">
                             <div class="avatar">
-                                <div class="anonymous_animal animal-1"></div>
+                                <div class="anonymous_animal animal-{{ message.from }}"></div>
                             </div>
 
                             <div class="message-text">
-                                Hey there!
+                                {{ message.message }}
                             </div>
                         </div>
+                        {% endraw %}
 
+
+                        {% for message in messages %}
                         <div class="message">
                             <div class="avatar">
-                                <div class="anonymous_animal animal-3"></div>
+                                <div class="anonymous_animal animal-{{ message.from }}"></div>
                             </div>
 
                             <div class="message-text">
+                                {{ message.message }}
                             </div>
                         </div>
-
+                        {% endfor %}
                     </div>
+
+
                 </div>
             </div>
         </div>
+        
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.js"></script>
+        <script src="/static/js/application.js"></script>
     </body>
 </html>
