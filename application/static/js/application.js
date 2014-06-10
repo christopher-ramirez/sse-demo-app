@@ -17,12 +17,6 @@ angular.module('sse', [])
         // Controla una lista de mensajes que se reciben por SSE
         $scope.messages = [];
 
-        // SSEClient.addEventListener('message', function(event) {
-        //     // Se recibe la notifiación sobre un nuevo mensaje en el servidor.
-        //     var message = JSON.parse(event.data);
-        //     $scope.message.unshift(message);
-        // }, true);
-
         SSEService.on('message', function(event) {
             var message = JSON.parse(event.data);
             $scope.messages.unshift(message);
