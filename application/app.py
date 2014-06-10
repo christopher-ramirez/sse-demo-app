@@ -53,7 +53,7 @@ def post_message():
     def notify_users():
         for subscription in subscriptions:
             subscription.put(message)
-    gevent.spawn(notify_users())
+    gevent.spawn(notify_users)
 
     # Devolvemos el nuevo mensaje al usuario que lo ha creado.
     return Response(json.dumps(message, cls=JSONEncoderExt), mimetype='application/json')
