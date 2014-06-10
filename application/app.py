@@ -69,11 +69,11 @@ def yield_events():
                 def previous_messages():
                     last_msg_received = headers.get('Last-Event-ID')
                     messages = mongo.db.messages.find({'_id': {'$gt': ObjectId(last_msg_received)}})
-                    for m in messages:
-                        yield msg_to_sse_msg(m)
+                    return '\n'.join(map(lambda m: msg_to_sse_msg(m), messages))
+                    # for m in messages:
+                    #     yield msg_to_sse_msg(m)
 
-                for m in previous_messages():
-                    yield m
+                yield previous_messages()
 
         queue = Queue()
         subscriptions.append(queue)
