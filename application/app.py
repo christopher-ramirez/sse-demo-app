@@ -70,8 +70,6 @@ def yield_events():
                     last_msg_received = headers.get('Last-Event-ID')
                     messages = mongo.db.messages.find({'_id': {'$gt': ObjectId(last_msg_received)}})
                     return '\n'.join(map(lambda m: msg_to_sse_msg(m), messages))
-                    # for m in messages:
-                    #     yield msg_to_sse_msg(m)
 
                 yield previous_messages()
 
